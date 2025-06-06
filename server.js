@@ -43,7 +43,7 @@ function findFilesWithNameContaining(dir, keyword, fileList = [], basePath = '')
 
 // Main route
 app.get('/', (req, res) => {
-    const keyword = req.query.keyword || 'abhishek';
+    const keyword = req.query.keyword || "GreatLearning";
     const matchedFiles = findFilesWithNameContaining(PUBLIC_DIR, keyword);
 
     const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
@@ -52,11 +52,15 @@ app.get('/', (req, res) => {
     const others = matchedFiles.filter(file => !imageExts.includes(file.ext));
 
     const renderCards = (files, isImage = false) => {
+        console.log(files[0])
         return files.map(file => `
             <li class="card">
+                <div class="img-box">
                 <img src="${file.url}" alt="${file.name}">
+                </div>
                 <p><strong>Name:</strong> ${file.name}</p>
                 <p><strong>Type:</strong> ${file.ext}</p>
+                <p><strong>Size:</strong> ${file.size}</p>
                 <p><strong>Size:</strong> ${file.size}</p>
                 <p style="margin-bottom:20px;"><strong>filePath:</strong> ${file.url}</a><br>
                 <a href="${file.url}" target="_blank">Open File</a>
@@ -123,13 +127,24 @@ app.get('/', (req, res) => {
                     text-align: left;
                     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
                     word-wrap: break-word;
+                   
                 }
-                .card img {
+                .card .img-box{
                     width: 100%;
                     height: 150px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-bottom:1px solid gray;
+                }
+                .card img {
+                    height:100%;
+                    width:100%;
+                    aspect-ration:auto;
                     object-fit: contain;
                     margin-bottom: 10px;
                     border: 1px solid #eee;
+                    background:#f8f8f8;
                 }
                 .file-icon {
                     font-size: 80px;
