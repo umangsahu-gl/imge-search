@@ -47,12 +47,19 @@ app.get('/', (req, res) => {
     const matchedFiles = findFilesWithNameContaining(PUBLIC_DIR, keyword);
 
     const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+    const notNeededExts = ['.css','.css.map', '.js', '.map', '.html', '.json', '.txt'];
 
     const images = matchedFiles.filter(file => imageExts.includes(file.ext));
-    const others = matchedFiles.filter(file => !imageExts.includes(file.ext));
+    const others = matchedFiles.filter(file => !imageExts.includes(file.ext)&& !notNeededExts.includes(file.ext));
+    const keptExts = [...images, ...others].map(f => f.ext);
+    const removedExts = matchedFiles
+        .map(f => f.ext)
+        .filter(ext => !keptExts.includes(ext));
+
+    // Unique and comma-separated
+    const uniqueRemovedExtsStr = [...new Set(removedExts)].join(', ');
 
     const renderCards = (files, isImage = false) => {
-        console.log(files[0])
         return files.map(file => `
             <li class="card">
                 <div class="img-box">
@@ -107,8 +114,8 @@ app.get('/', (req, res) => {
                     margin-top: 40px;
                 }
                 h2 {
-                    border-bottom: 2px solid #ddd;
                     padding-bottom: 10px;
+                    display: inline;
                 }
                 ul {
                     display: flex;
@@ -117,6 +124,8 @@ app.get('/', (req, res) => {
                     justify-content: center;
                     padding: 0;
                     list-style: none;
+                    border-top: 2px solid #ddd;
+                    padding-top: 20px;
                 }
                 .card {
                     background: white;
@@ -159,6 +168,7 @@ app.get('/', (req, res) => {
                 a:hover {
                     text-decoration: underline;
                 }
+
             </style>
         </head>
         <body>
@@ -167,16 +177,19 @@ app.get('/', (req, res) => {
                 <input type="text" name="keyword" value="${keyword}" placeholder="Enter keyword..." />
                 <button type="submit">Search</button>
             </form>
-
+            <small> Total Files Found:<b> ${matchedFiles.length}</b>
+            <br>${uniqueRemovedExtsStr  && `<small> also find some file which removed. having extension <b>${uniqueRemovedExtsStr}</b></small>`}
             <section>
-                <h2>🖼 Image Files</h2>
+                <span><h2>🖼 Image Files </h2><small>Images found: <b>${images.length || 0}</b></small></span>
+                
                 <ul>
                     ${images.length ? renderCards(images, true) : '<p>No image files found.</p>'}
                 </ul>
             </section>
 
             <section>
-                <h2>📄 Other Files</h2>
+                <span><h2>📄 Other Files</h2> <small>Others found:<b> ${others?.length || 0}</b></small></span>
+                
                 <ul>
                     ${others.length ? renderCards(others, false) : '<p>No other files found.</p>'}
                 </ul>
